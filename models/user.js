@@ -1,5 +1,9 @@
 const Joi = require('@hapi/joi');
+const config = require('config');
 const mongoose = require('mongoose');
+const passwordComplexity = require('joi-password-complexity');
+const jwt = require('jsonwebtoken');
+
 
 const userSchema = new mongoose.Schema({
   name:{
@@ -25,6 +29,9 @@ const userSchema = new mongoose.Schema({
   isAdmin: Boolean
 });
 
+userSchema.methods.generateAuthToken = function() {  
+  return jwt.sign({_id: this._id, isAdmin: this.isAdmin}, config.get('jwtPrivateKey'));
+}
 const User = mongoose.model('User', userSchema);
 
 function validateUser(user){
@@ -33,11 +40,15 @@ function validateUser(user){
       .min(3)
       .max(20)
       .required(),
-    password: Joi.string()
-      .min(6)
-      .max(1024)
-      .pattern(new RegExp('^[a-zA-Z0-9]{3,30}$'))
-      .required(),
+    password: passwordComplexity({
+      "min": 6,
+      "max": 1024,
+      "lowerCase": 1,
+      "upperCase": 1,
+      "numeric": 1,
+      "symbol": 1,
+      "requirementCount": 2
+    }),
 
     repeatPassword: Joi.ref('password'),
 

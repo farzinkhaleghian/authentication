@@ -1,7 +1,9 @@
 const express = require('express');
-const mongoose = require('mongoose');
+const bcrypt = require('bcrypt');
 const _ = require('lodash');
 const {User, validate} = require('../models/user');
+const auth = require('../middleware/auth');
+const admin = require('../middleware/admin');
 
 const router = express.Router();
 router.post('/', async (req, res) => {
@@ -12,9 +14,28 @@ router.post('/', async (req, res) => {
   if(user) return res.status(400).send('User already registered');
 
   user = new User(_.pick(req.body, ['name', 'email', 'password']));
+  const salt = await bcrypt.genSalt(10);
+  user.password = await bcrypt.hash(user.password, salt);
   await user.save();
 
-  res.send(_.pick(user, ['_id', 'name', 'email']));
+  const token = user.generateAuthToken();
+
+  res.header('x-auth-token', token).send(_.pick(user, ['_id', 'name', 'email']));
 });
 
+router.get('/me', auth, async(req, res) => {
+  // console.log(req.user)
+  const user = await User.findById(req.user._id).select('-password');
+  res.send(user)
+})
+router.get('/', auth, async(req, res) => {
+  console.log(req.user)
+  const users = await User.find();
+  res.send(users)
+})
+
+router.delete('/:userId', [auth, admin] , async(req, res) => {
+  const user = await User.findByIdAndRemove(req.params.userId);
+  res.send(user)
+})
 module.exports = router;

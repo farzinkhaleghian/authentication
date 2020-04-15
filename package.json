@@ -18,8 +18,11 @@
   "homepage": "https://github.com/farzinkhaleghian/authentication#readme",
   "dependencies": {
     "@hapi/joi": "^17.1.1",
+    "bcrypt": "^4.0.1",
     "config": "^3.3.1",
     "express": "^4.17.1",
+    "joi-password-complexity": "^4.1.0",
+    "jsonwebtoken": "^8.5.1",
     "lodash": "^4.17.15",
     "mongoose": "^5.9.9"
   }

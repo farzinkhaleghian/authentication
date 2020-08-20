@@ -18,7 +18,7 @@
   "homepage": "https://github.com/farzinkhaleghian/authentication#readme",
   "dependencies": {
     "@hapi/joi": "^17.1.1",
-    "bcrypt": "^4.0.1",
+    "bcrypt": "^5.0.0",
     "config": "^3.3.1",
     "express": "^4.17.1",
     "joi-password-complexity": "^4.1.0",
